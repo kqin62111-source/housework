@@ -1,0 +1,52 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.StudentMapper">
+
+    <insert id="addStudent">
+        insert into student(name, age, gender, className, grade) 
+        values(#{name}, #{age}, #{gender}, #{className}, #{grade})
+    </insert>
+
+    <update id="updateStudent">
+        update student set
+        name = #{name},
+        age = #{age},
+        gender = #{gender},
+        className = #{className},
+        grade = #{grade}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudent">
+        delete from student where id = #{id}
+    </delete>
+
+    <select id="getStudent" resultType="cn.wolfcode.domain.Student">
+        select id, name, age, gender, className, grade from student where id = #{id}
+    </select>
+
+    <select id="selectAllStudent" resultType="cn.wolfcode.domain.Student">
+        select id, name, age, gender, className, grade from student
+    </select>
+
+    <select id="selectStudentByQuery" resultType="cn.wolfcode.domain.Student">
+        select id, name, age, gender, className, grade from student
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="gender != null and gender != ''">
+                and gender = #{gender}
+            </if>
+            <if test="className != null and className != ''">
+                and className like concat('%', #{className}, '%')
+            </if>
+            <if test="grade != null and grade != ''">
+                and grade like concat('%', #{grade}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

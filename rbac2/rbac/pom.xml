@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    <?xml version="1.0" encoding="UTF-8"?> ## 格式固定
+    文档声明：声明当前文件使用XML语言编写，支持UTF-8编码集
+    注意！！！必须写在xml文件中的第一行第一列，否则失效
+    project标签：进行项目整体配置
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- modelVersion标签：指定Maven POM模型版本，固定4.0.0（目前最稳定的版本）  -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        parent标签：配置父项目依赖，实现依赖版本的统一；这里配置的是依赖SpringBoot官方的starters父项目，简化配置
+            groupId标签：项目所在组织的唯一标识
+            artifactId标签：项目唯一标识，实质上就是项目名
+            version标签：配置当前项目所用版本号
+            relativePath标签：当且仅当在父项目中没有获取依赖时，则从镜像仓储下载
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.3.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <!--
+        name标签：项目展示名称
+        description标签：配置描述当前项目信息
+    -->
+    <groupId>cn.wolfcode</groupId>
+    <artifactId>rbac</artifactId>
+    <version>1.0.0</version>
+    <name>rbac</name>
+    <description>RBAC Project for SpringBoot</description>
+
+    <!--
+        properties标签：配置当前项目的全局属性
+            java.version标签：配置JDK版本号，当前项目写“死”，必须配置11
+    -->
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <!--
+        dependencies标签：配置项目需要的所有依赖管理区域；即需要的所有依赖都是定义在该标签下
+            dependency标签：配置导入的具体某个依赖，一定定义在dependencies标签下的
+    -->
+    <dependencies>
+
+        <!-- spring-boot-stater-web：集成SpringMVC框架和嵌入的Web应用服务 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--
+            Lombok插件：简化JavaBean（Java实体类）开发工具；提供一组注解，生成
+          JavaBean中需要的方法，例如，成员字段的get/set方法、toString方法...
+                optional标签：设置当前依赖是否会传递，true表示不会传递
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            spring-boot-starter-test：集成相关的测试框架（例如Spring Test或JUnit）
+                scope标签：设置当前依赖起作用的范围（时间），test表示仅在测试时生效
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- spring-boot-starter-jdbc：集成Spring JDBC模板，简化数据库操作 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- mysql-connector-java：集成使用Java语言操作MySQL数据库；runtime表示当前依赖只在运行时生效 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- druid-spring-boot-starter：集成Druid连接池（阿里巴巴封装，存储数据库操作对象） -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.21</version>
+        </dependency>
+
+        <!-- mybatis-sparing-boot-starter：集成SpringBoot框架操作MyBatis框架 -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
+        <!-- spring-boot-starter-thymeleaf： 集成Thymeleaf模板引擎，主要用于Web端页面渲染，代替JSP，支持H5-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!--
+                spring-boot-devtools：集成SpringBoot框架中的开发者工具，
+            主要实现热部署，修改代码后无序重启即可成效，提高开发效率
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+        <!-- pagehelper-spring-boot-starter：集成MyBatis框架的物理分页显示插件 -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <!-- build标签：项目搭建（构建）配置区域 ## 配置Maven项目启动时，所需的插件和资源文件等 -->
+    <build>
+        <!-- plugins标签：启动Maven项目时插件配置区域 -->
+        <plugins>
+            <!-- plugin标签：配置启动Maven项目是所需要的指定的某个插件 -->
+            <plugin>
+                <!-- spring-boot-maven-plugin：配置SpringBoot框架中启动Maven项目时需要的插件 -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- configuration标签：配置要安装的插件信息 -->
+                <configuration>
+                    <!-- excludes标签：安装插件的配置区域 -->
+                    <excludes>
+                        <!-- exclude标签：配置安装指定的插件 ## 配置安装Lombok插件 -->
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- mybatis-generator-maven-plugin：配置基于Maven项目下的MyBatis框架的生成器插件 -->
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
+                <version>1.3.2</version>
+                <configuration>
+                    <!-- verbose标签：配置是否输出操作数据库详细日志；true表示输出 -->
+                    <verbose>true</verbose>
+                    <!-- overwrite标签：配置是否覆盖已有的文件；false表示不覆盖 -->
+                    <overwrite>false</overwrite>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <!-- mysql-connector-java：配置Java操作MySQL数据库的驱动 -->
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>5.1.45</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,39 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.GradeMapper">
+
+    <insert id="addGrade">
+        insert into grade(name, description) values(#{name}, #{description})
+    </insert>
+
+    <update id="updateGrade">
+        update grade set name = #{name}, description = #{description} where id = #{id}
+    </update>
+
+    <delete id="deleteGrade">
+        delete from grade where id = #{id}
+    </delete>
+
+    <select id="getGrade" resultType="cn.wolfcode.domain.Grade">
+        select id, name, description from grade where id = #{id}
+    </select>
+
+    <select id="selectAllGrade" resultType="cn.wolfcode.domain.Grade">
+        select id, name, description from grade
+    </select>
+
+    <select id="selectGradeByQuery" resultType="cn.wolfcode.domain.Grade">
+        select id, name, description from grade
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="description != null and description != ''">
+                and description like concat('%', #{description}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

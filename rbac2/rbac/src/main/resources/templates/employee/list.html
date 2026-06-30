@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>教师管理</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>教师管理</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <form class="form-inline" id="searchForm" action="/employee/list" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="name" placeholder="教师姓名" th:value="${query?.name}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="position" placeholder="职位" th:value="${query?.position}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="departmentName" placeholder="部门名称" th:value="${query?.departmentName}">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                        <a href="#" class="btn btn-success btn-input" style="margin: 10px">
+                            <span class="glyphicon glyphicon-plus"></span> 添加
+                        </a>
+                    </form>
+                    <div class="box-body table-responsive ">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>教师姓名</th>
+                                <th>工号</th>
+                                <th>电话</th>
+                                <th>邮箱</th>
+                                <th>部门</th>
+                                <th>职位</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="employee,stat:${pageInfo.list}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${employee.name}">张老师</td>
+                                <td th:text="${employee.sn}">T001</td>
+                                <td th:text="${employee.phone}">13800138000</td>
+                                <td th:text="${employee.email}">zhang@school.com</td>
+                                <td th:text="${employee.departmentName}">教务处</td>
+                                <td th:text="${employee.position}">语文老师</td>
+                                <td>
+                                    <a href="#" class="btn btn-info btn-xs btn-input" th:data-json="${employee.json}">
+                                        <span class="glyphicon glyphicon-pencil"></span> 编辑
+                                    </a>
+                                    <a class="btn btn-danger btn-xs btn-delete" th:data-url="|/employee/delete?id=${employee.id}|">
+                                        <span class="glyphicon glyphicon-trash"></span> 删除
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment :: page"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="employeeDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">教师编辑</h4>
+                </div>
+                <form action="/employee/saveOrUpdate" method="post">
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">教师姓名</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="sn">工号</label>
+                            <input type="text" class="form-control" name="sn" id="sn" placeholder="如：T001">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">电话</label>
+                            <input type="text" class="form-control" name="phone" id="phone" placeholder="手机号码">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">邮箱</label>
+                            <input type="text" class="form-control" name="email" id="email" placeholder="邮箱地址">
+                        </div>
+                        <div class="form-group">
+                            <label for="departmentId">部门</label>
+                            <select class="form-control" name="departmentId" id="departmentId">
+                                <option value="">请选择部门</option>
+                                <option th:each="dept:${departments}" th:value="${dept.id}" th:text="${dept.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="position">职位</label>
+                            <input type="text" class="form-control" name="position" id="position" placeholder="如：语文老师">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(".btn-input").click(function(){
+            $("#id").val("");
+            $("#name").val("");
+            $("#sn").val("");
+            $("#phone").val("");
+            $("#email").val("");
+            $("#departmentId").val("");
+            $("#position").val("");
+            let data = $(this).data('json');
+            if(data){
+                $(".modal-title").html("教师编辑");
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#sn").val(data.sn);
+                $("#phone").val(data.phone);
+                $("#email").val(data.email);
+                $("#departmentId").val(data.departmentId);
+                $("#position").val(data.position);
+            } else {
+                $(".modal-title").html("教师新增");
+            }
+            $("#employeeDialog").modal(true);
+        });
+
+        $(".btn-delete").click(function(e){
+            e.preventDefault();
+            var url = $(this).data('url');
+            if(confirm('您确定要删除吗？此操作不可撤销!')) {
+                location.href = url;
+            }
+        });
+    </script>
+</body>
+</html>

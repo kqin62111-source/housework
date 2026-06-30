@@ -1,0 +1,68 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.ScoreMapper">
+
+    <insert id="addScore">
+        insert into score(student_id, course_id, score, exam_type, exam_date) 
+        values(#{studentId}, #{courseId}, #{score}, #{examType}, #{examDate})
+    </insert>
+
+    <update id="updateScore">
+        update score set student_id = #{studentId}, course_id = #{courseId}, score = #{score}, 
+        exam_type = #{examType}, exam_date = #{examDate} where id = #{id}
+    </update>
+
+    <delete id="deleteScore">
+        delete from score where id = #{id}
+    </delete>
+
+    <select id="getScore" resultType="cn.wolfcode.domain.Score">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.course_id as courseId, c.name as courseName, s.score, s.exam_type as examType, s.exam_date as examDate
+        from score s 
+        left join student stu on s.student_id = stu.id
+        left join course c on s.course_id = c.id
+        where s.id = #{id}
+    </select>
+
+    <select id="selectAllScore" resultType="cn.wolfcode.domain.Score">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.course_id as courseId, c.name as courseName, s.score, s.exam_type as examType, s.exam_date as examDate
+        from score s 
+        left join student stu on s.student_id = stu.id
+        left join course c on s.course_id = c.id
+    </select>
+
+    <select id="selectScoreByQuery" resultType="cn.wolfcode.domain.Score">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.course_id as courseId, c.name as courseName, s.score, s.exam_type as examType, s.exam_date as examDate
+        from score s 
+        left join student stu on s.student_id = stu.id
+        left join course c on s.course_id = c.id
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and stu.name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="courseName != null and courseName != ''">
+                and c.name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="minScore != null">
+                and s.score &gt;= #{minScore}
+            </if>
+            <if test="maxScore != null">
+                and s.score &lt;= #{maxScore}
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByStudentId">
+        delete from score where student_id = #{studentId}
+    </delete>
+
+    <delete id="deleteByCourseId">
+        delete from score where course_id = #{courseId}
+    </delete>
+
+</mapper>

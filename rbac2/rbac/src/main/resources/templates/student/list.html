@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>学生管理</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>学生管理</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <form class="form-inline" id="searchForm" action="/student/list" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="name" placeholder="学生姓名" th:value="${query.name}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <select class="form-control" name="gender">
+                                <option value="">全部性别</option>
+                                <option value="男" th:selected="${query.gender == '男'}">男</option>
+                                <option value="女" th:selected="${query.gender == '女'}">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="className" placeholder="班级名称" th:value="${query.className}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="grade" placeholder="年级" th:value="${query.grade}">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                        <a href="#" class="btn btn-success btn-input" style="margin: 10px">
+                            <span class="glyphicon glyphicon-plus"></span> 添加
+                        </a>
+                    </form>
+                    <div class="box-body table-responsive ">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>姓名</th>
+                                <th>年龄</th>
+                                <th>性别</th>
+                                <th>班级</th>
+                                <th>年级</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="student,stat:${pageInfo.list}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${student.name}">张三</td>
+                                <td th:text="${student.age}">12</td>
+                                <td th:text="${student.gender}">男</td>
+                                <td th:text="${student.className}">初一(1)班</td>
+                                <td th:text="${student.grade}">初一</td>
+                                <td>
+                                    <a href="#" class="btn btn-info btn-xs btn-input" th:data-json="${student.json}">
+                                        <span class="glyphicon glyphicon-pencil"></span> 编辑
+                                    </a>
+                                    <a class="btn btn-danger btn-xs btn-delete" th:data-url="|/student/delete?id=${student.id}|">
+                                        <span class="glyphicon glyphicon-trash"></span> 删除
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment :: page"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="studentDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">学生编辑</h4>
+                </div>
+                <form action="/student/saveOrUpdate" method="post">
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">姓名</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="age">年龄</label>
+                            <input type="number" class="form-control" name="age" id="age" placeholder="年龄">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">性别</label>
+                            <select class="form-control" name="gender" id="gender">
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="className">班级</label>
+                            <input type="text" class="form-control" name="className" id="className" placeholder="班级">
+                        </div>
+                        <div class="form-group">
+                            <label for="grade">年级</label>
+                            <input type="text" class="form-control" name="grade" id="grade" placeholder="年级">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(".btn-input").click(function(){
+            $("#id").val("");
+            $("#name").val("");
+            $("#age").val("");
+            $("#gender").val("男");
+            $("#className").val("");
+            $("#grade").val("");
+            let data = $(this).data('json');
+            if(data){
+                $(".modal-title").html("学生编辑");
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#age").val(data.age);
+                $("#gender").val(data.gender);
+                $("#className").val(data.className);
+                $("#grade").val(data.grade);
+            } else {
+                $(".modal-title").html("学生新增");
+            }
+            $("#studentDialog").modal(true);
+        });
+
+        $(".btn-delete").click(function(e){
+            e.preventDefault();
+            var url = $(this).data('url');
+            if(confirm('您确定要删除吗？此操作不可撤销!')) {
+                location.href = url;
+            }
+        });
+    </script>
+</body>
+</html>

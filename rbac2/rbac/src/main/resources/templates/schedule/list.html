@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>课程表管理</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>课程表管理</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <form class="form-inline" id="searchForm" action="/schedule/list" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="className" placeholder="班级名称" th:value="${query?.className}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="courseName" placeholder="课程名称" th:value="${query?.courseName}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="teacherName" placeholder="教师姓名" th:value="${query?.teacherName}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <select class="form-control" name="dayOfWeek">
+                                <option value="">全部星期</option>
+                                <option value="周一" th:selected="${query?.dayOfWeek == '周一'}">周一</option>
+                                <option value="周二" th:selected="${query?.dayOfWeek == '周二'}">周二</option>
+                                <option value="周三" th:selected="${query?.dayOfWeek == '周三'}">周三</option>
+                                <option value="周四" th:selected="${query?.dayOfWeek == '周四'}">周四</option>
+                                <option value="周五" th:selected="${query?.dayOfWeek == '周五'}">周五</option>
+                                <option value="周六" th:selected="${query?.dayOfWeek == '周六'}">周六</option>
+                                <option value="周日" th:selected="${query?.dayOfWeek == '周日'}">周日</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                        <a href="#" class="btn btn-success btn-input" style="margin: 10px">
+                            <span class="glyphicon glyphicon-plus"></span> 添加
+                        </a>
+                    </form>
+                    <div class="box-body table-responsive ">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>班级</th>
+                                <th>课程</th>
+                                <th>教师</th>
+                                <th>星期</th>
+                                <th>节次</th>
+                                <th>教室</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="schedule,stat:${pageInfo.list}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${schedule.className}">初一(1)班</td>
+                                <td th:text="${schedule.courseName}">语文</td>
+                                <td th:text="${schedule.teacherName}">张老师</td>
+                                <td th:text="${schedule.dayOfWeek}">周一</td>
+                                <td th:text="${schedule.period}">1</td>
+                                <td th:text="${schedule.classroom}">101</td>
+                                <td>
+                                    <a href="#" class="btn btn-info btn-xs btn-input" th:data-json="${schedule.json}">
+                                        <span class="glyphicon glyphicon-pencil"></span> 编辑
+                                    </a>
+                                    <a class="btn btn-danger btn-xs btn-delete" th:data-url="|/schedule/delete?id=${schedule.id}|">
+                                        <span class="glyphicon glyphicon-trash"></span> 删除
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment :: page"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="scheduleDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">课程表编辑</h4>
+                </div>
+                <form action="/schedule/saveOrUpdate" method="post">
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="classId">班级</label>
+                            <select class="form-control" name="classId" id="classId">
+                                <option value="">请选择班级</option>
+                                <option th:each="clazz:${clazzes}" th:value="${clazz.id}" th:text="${clazz.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="courseId">课程</label>
+                            <select class="form-control" name="courseId" id="courseId">
+                                <option value="">请选择课程</option>
+                                <option th:each="course:${courses}" th:value="${course.id}" th:text="${course.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherId">教师</label>
+                            <select class="form-control" name="teacherId" id="teacherId">
+                                <option value="">请选择教师</option>
+                                <option th:each="employee:${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dayOfWeek">星期</label>
+                            <select class="form-control" name="dayOfWeek" id="dayOfWeek">
+                                <option value="周一">周一</option>
+                                <option value="周二">周二</option>
+                                <option value="周三">周三</option>
+                                <option value="周四">周四</option>
+                                <option value="周五">周五</option>
+                                <option value="周六">周六</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="period">节次</label>
+                            <select class="form-control" name="period" id="period">
+                                <option value="1">第1节</option>
+                                <option value="2">第2节</option>
+                                <option value="3">第3节</option>
+                                <option value="4">第4节</option>
+                                <option value="5">第5节</option>
+                                <option value="6">第6节</option>
+                                <option value="7">第7节</option>
+                                <option value="8">第8节</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="classroom">教室</label>
+                            <input type="text" class="form-control" name="classroom" id="classroom" placeholder="如：101">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(".btn-input").click(function(){
+            $("#id").val("");
+            $("#classId").val("");
+            $("#courseId").val("");
+            $("#teacherId").val("");
+            $("#dayOfWeek").val("周一");
+            $("#period").val("1");
+            $("#classroom").val("");
+            let data = $(this).data('json');
+            if(data){
+                $(".modal-title").html("课程表编辑");
+                $("#id").val(data.id);
+                $("#classId").val(data.classId);
+                $("#courseId").val(data.courseId);
+                $("#teacherId").val(data.teacherId);
+                $("#dayOfWeek").val(data.dayOfWeek);
+                $("#period").val(data.period);
+                $("#classroom").val(data.classroom);
+            } else {
+                $(".modal-title").html("课程表新增");
+            }
+            $("#scheduleDialog").modal(true);
+        });
+
+        $(".btn-delete").click(function(e){
+            e.preventDefault();
+            var url = $(this).data('url');
+            if(confirm('您确定要删除吗？此操作不可撤销!')) {
+                location.href = url;
+            }
+        });
+    </script>
+</body>
+</html>

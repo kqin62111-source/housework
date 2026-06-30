@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>部门管理</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>部门管理</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <!--高级查询--->
+                    <form class="form-inline" id="searchForm" action="/department/list" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="name" placeholder="部门名称" th:value="${query?.name}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="sn" placeholder="部门编号" th:value="${query?.sn}">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                        <a href="#" class="btn btn-success btn-input" style="margin: 10px">
+                            <span class="glyphicon glyphicon-plus"></span> 添加
+                        </a>
+                    </form>
+                    <!--编写内容-->
+                    <div class="box-body table-responsive ">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>部门名称</th>
+                                <th>部门编号</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="department,stat:${pageInfo.list}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${department.name}">开发部</td>
+                                <td th:text="${department.sn}">DEV</td>
+                                <td>
+                                        <a href="#" class="btn btn-info btn-xs btn-input" th:data-json="${department.json}">
+                                            <span class="glyphicon glyphicon-pencil"></span> 编辑
+                                        </a>
+                                        <a class="btn btn-danger btn-xs btn-delete" th:data-url="|/department/delete?id=${department.id}|">
+                                            <span class="glyphicon glyphicon-trash"></span> 删除
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment :: page"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="departmentDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">部门编辑</h4>
+                </div>
+                <form action="/department/saveOrUpdate" method="post">
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">名称</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="sn">缩写</label>
+                            <input type="text" class="form-control" name="sn" id="sn" placeholder="缩写">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<script>
+    $(".btn-input").click(function(){
+          $("#id").val("");
+          $("#name").val("");
+          $("#sn").val("");
+        let data=$(this).data('json')
+        if(data){
+            $(".modal-title").html("部门编辑")
+            $("#id").val(data.id);
+            $("#name").val(data.name);
+            $("#sn").val(data.sn);
+        }
+        else{
+             $(".modal-title").html("部门新增")
+        }
+            $("#departmentDialog").modal(true);
+    })
+
+    $(".btn-delete").click(function(e){
+        e.preventDefault();
+        var url = $(this).data('url');
+        if(confirm('您确定要删除吗？此操作不可撤销!')) {
+            location.href = url;
+        }
+    });
+
+    </script>
+
+
+</body>
+</html>

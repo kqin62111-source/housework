@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>考勤管理</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>考勤管理</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <form class="form-inline" id="searchForm" action="/attendance/list" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="studentName" placeholder="学生姓名" th:value="${query?.studentName}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <select class="form-control" name="status">
+                                <option value="">全部状态</option>
+                                <option value="出勤" th:selected="${query?.status == '出勤'}">出勤</option>
+                                <option value="迟到" th:selected="${query?.status == '迟到'}">迟到</option>
+                                <option value="早退" th:selected="${query?.status == '早退'}">早退</option>
+                                <option value="请假" th:selected="${query?.status == '请假'}">请假</option>
+                                <option value="缺勤" th:selected="${query?.status == '缺勤'}">缺勤</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <input type="date" class="form-control" name="attendanceDate" th:value="${query?.attendanceDate}">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                        <a href="#" class="btn btn-success btn-input" style="margin: 10px">
+                            <span class="glyphicon glyphicon-plus"></span> 添加
+                        </a>
+                    </form>
+                    <div class="box-body table-responsive ">
+                        <table class="table table-hover table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>学生姓名</th>
+                                <th>考勤日期</th>
+                                <th>状态</th>
+                                <th>原因</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="attendance,stat:${pageInfo.list}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${attendance.studentName}">张三</td>
+                                <td th:text="${attendance.attendanceDate}">2024-01-01</td>
+                                <td th:text="${attendance.status}">出勤</td>
+                                <td th:text="${attendance.reason}"></td>
+                                <td>
+                                    <a href="#" class="btn btn-info btn-xs btn-input" th:data-json="${attendance.json}">
+                                        <span class="glyphicon glyphicon-pencil"></span> 编辑
+                                    </a>
+                                    <a class="btn btn-danger btn-xs btn-delete" th:data-url="|/attendance/delete?id=${attendance.id}|">
+                                        <span class="glyphicon glyphicon-trash"></span> 删除
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment :: page"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="attendanceDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">考勤编辑</h4>
+                </div>
+                <form action="/attendance/saveOrUpdate" method="post">
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="studentId">学生</label>
+                            <select class="form-control" name="studentId" id="studentId">
+                                <option value="">请选择学生</option>
+                                <option th:each="student:${students}" th:value="${student.id}" th:text="${student.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="attendanceDate">考勤日期</label>
+                            <input type="date" class="form-control" name="attendanceDate" id="attendanceDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">状态</label>
+                            <select class="form-control" name="status" id="status">
+                                <option value="出勤">出勤</option>
+                                <option value="迟到">迟到</option>
+                                <option value="早退">早退</option>
+                                <option value="请假">请假</option>
+                                <option value="旷课">旷课</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">原因</label>
+                            <input type="text" class="form-control" name="reason" id="reason" placeholder="原因（可选）">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(".btn-input").click(function(){
+            $("#id").val("");
+            $("#studentId").val("");
+            $("#attendanceDate").val("");
+            $("#status").val("出勤");
+            $("#reason").val("");
+            let data = $(this).data('json');
+            if(data){
+                $(".modal-title").html("考勤编辑");
+                $("#id").val(data.id);
+                $("#studentId").val(data.studentId);
+                $("#attendanceDate").val(data.attendanceDate);
+                $("#status").val(data.status);
+                $("#reason").val(data.reason);
+            } else {
+                $(".modal-title").html("考勤新增");
+            }
+            $("#attendanceDialog").modal(true);
+        });
+
+        $(".btn-delete").click(function(e){
+            e.preventDefault();
+            var url = $(this).data('url');
+            if(confirm('您确定要删除吗？此操作不可撤销!')) {
+                location.href = url;
+            }
+        });
+    </script>
+</body>
+</html>

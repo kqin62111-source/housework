@@ -1,0 +1,46 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.ClazzMapper">
+
+    <insert id="addClazz">
+        insert into clazz(name, grade_id) values(#{name}, #{gradeId})
+    </insert>
+
+    <update id="updateClazz">
+        update clazz set name = #{name}, grade_id = #{gradeId} where id = #{id}
+    </update>
+
+    <delete id="deleteClazz">
+        delete from clazz where id = #{id}
+    </delete>
+
+    <select id="getClazz" resultType="cn.wolfcode.domain.Clazz">
+        select c.id, c.name, c.grade_id as gradeId, g.name as gradeName 
+        from clazz c left join grade g on c.grade_id = g.id where c.id = #{id}
+    </select>
+
+    <select id="selectAllClazz" resultType="cn.wolfcode.domain.Clazz">
+        select c.id, c.name, c.grade_id as gradeId, g.name as gradeName 
+        from clazz c left join grade g on c.grade_id = g.id
+    </select>
+
+    <select id="selectClazzByQuery" resultType="cn.wolfcode.domain.Clazz">
+        select c.id, c.name, c.grade_id as gradeId, g.name as gradeName 
+        from clazz c left join grade g on c.grade_id = g.id
+        <where>
+            <if test="name != null and name != ''">
+                and c.name like concat('%', #{name}, '%')
+            </if>
+            <if test="grade != null and grade != ''">
+                and g.name like concat('%', #{grade}, '%')
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByGradeId">
+        delete from clazz where grade_id = #{gradeId}
+    </delete>
+
+</mapper>

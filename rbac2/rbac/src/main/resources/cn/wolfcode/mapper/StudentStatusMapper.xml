@@ -1,0 +1,56 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.StudentStatusMapper">
+
+    <insert id="addStudentStatus">
+        insert into student_status(student_id, status, reason, operate_date, operator) 
+        values(#{studentId}, #{status}, #{reason}, #{operateDate}, #{operator})
+    </insert>
+
+    <update id="updateStudentStatus">
+        update student_status set student_id = #{studentId}, status = #{status}, 
+        reason = #{reason}, operate_date = #{operateDate}, operator = #{operator} 
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudentStatus">
+        delete from student_status where id = #{id}
+    </delete>
+
+    <select id="getStudentStatus" resultType="cn.wolfcode.domain.StudentStatus">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.status, s.reason, s.operate_date as operateDate, s.operator
+        from student_status s left join student stu on s.student_id = stu.id 
+        where s.id = #{id}
+    </select>
+
+    <select id="selectAllStudentStatus" resultType="cn.wolfcode.domain.StudentStatus">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.status, s.reason, s.operate_date as operateDate, s.operator
+        from student_status s left join student stu on s.student_id = stu.id
+    </select>
+
+    <select id="selectStudentStatusByQuery" resultType="cn.wolfcode.domain.StudentStatus">
+        select s.id, s.student_id as studentId, stu.name as studentName, 
+        s.status, s.reason, s.operate_date as operateDate, s.operator
+        from student_status s left join student stu on s.student_id = stu.id
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and stu.name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and s.status = #{status}
+            </if>
+            <if test="operator != null and operator != ''">
+                and s.operator like concat('%', #{operator}, '%')
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByStudentId">
+        delete from student_status where student_id = #{studentId}
+    </delete>
+
+</mapper>

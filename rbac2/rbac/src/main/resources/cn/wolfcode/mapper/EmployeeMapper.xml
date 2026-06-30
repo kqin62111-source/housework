@@ -1,0 +1,54 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.EmployeeMapper">
+
+    <insert id="addEmployee">
+        insert into employee(name, sn, phone, email, department_id, position) 
+        values(#{name}, #{sn}, #{phone}, #{email}, #{departmentId}, #{position})
+    </insert>
+
+    <update id="updateEmployee">
+        update employee set name = #{name}, sn = #{sn}, phone = #{phone}, email = #{email}, 
+        department_id = #{departmentId}, position = #{position} where id = #{id}
+    </update>
+
+    <delete id="deleteEmployee">
+        delete from employee where id = #{id}
+    </delete>
+
+    <select id="getEmployee" resultType="cn.wolfcode.domain.Employee">
+        select e.id, e.name, e.sn, e.phone, e.email, e.department_id as departmentId, 
+        d.name as departmentName, e.position
+        from employee e left join department d on e.department_id = d.id where e.id = #{id}
+    </select>
+
+    <select id="selectAllEmployee" resultType="cn.wolfcode.domain.Employee">
+        select e.id, e.name, e.sn, e.phone, e.email, e.department_id as departmentId, 
+        d.name as departmentName, e.position
+        from employee e left join department d on e.department_id = d.id
+    </select>
+
+    <select id="selectEmployeeByQuery" resultType="cn.wolfcode.domain.Employee">
+        select e.id, e.name, e.sn, e.phone, e.email, e.department_id as departmentId, 
+        d.name as departmentName, e.position
+        from employee e left join department d on e.department_id = d.id
+        <where>
+            <if test="name != null and name != ''">
+                and e.name like concat('%', #{name}, '%')
+            </if>
+            <if test="departmentName != null and departmentName != ''">
+                and d.name like concat('%', #{departmentName}, '%')
+            </if>
+            <if test="position != null and position != ''">
+                and e.position like concat('%', #{position}, '%')
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByDepartmentId">
+        delete from employee where department_id = #{departmentId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,89 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.ScheduleMapper">
+
+    <insert id="addSchedule">
+        insert into schedule(class_id, course_id, teacher_id, day_of_week, period, classroom) 
+        values(#{classId}, #{courseId}, #{teacherId}, #{dayOfWeek}, #{period}, #{classroom})
+    </insert>
+
+    <update id="updateSchedule">
+        update schedule set class_id = #{classId}, course_id = #{courseId}, teacher_id = #{teacherId}, 
+        day_of_week = #{dayOfWeek}, period = #{period}, classroom = #{classroom} where id = #{id}
+    </update>
+
+    <delete id="deleteSchedule">
+        delete from schedule where id = #{id}
+    </delete>
+
+    <select id="getSchedule" resultType="cn.wolfcode.domain.Schedule">
+        select s.id, s.class_id as classId, c.name as className, 
+        s.course_id as courseId, co.name as courseName, 
+        s.teacher_id as teacherId, e.name as teacherName,
+        s.day_of_week as dayOfWeek, s.period, s.classroom
+        from schedule s 
+        left join clazz c on s.class_id = c.id
+        left join course co on s.course_id = co.id
+        left join employee e on s.teacher_id = e.id
+        where s.id = #{id}
+    </select>
+
+    <select id="selectAllSchedule" resultType="cn.wolfcode.domain.Schedule">
+        select s.id, s.class_id as classId, c.name as className, 
+        s.course_id as courseId, co.name as courseName, 
+        s.teacher_id as teacherId, e.name as teacherName,
+        s.day_of_week as dayOfWeek, s.period, s.classroom
+        from schedule s 
+        left join clazz c on s.class_id = c.id
+        left join course co on s.course_id = co.id
+        left join employee e on s.teacher_id = e.id
+    </select>
+
+    <select id="selectScheduleByQuery" resultType="cn.wolfcode.domain.Schedule">
+        select s.id, s.class_id as classId, c.name as className, 
+        s.course_id as courseId, co.name as courseName, 
+        s.teacher_id as teacherId, e.name as teacherName,
+        s.day_of_week as dayOfWeek, s.period, s.classroom
+        from schedule s 
+        left join clazz c on s.class_id = c.id
+        left join course co on s.course_id = co.id
+        left join employee e on s.teacher_id = e.id
+        <where>
+            <if test="className != null and className != ''">
+                and c.name like concat('%', #{className}, '%')
+            </if>
+            <if test="courseName != null and courseName != ''">
+                and co.name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and e.name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="dayOfWeek != null and dayOfWeek != ''">
+                and s.day_of_week = #{dayOfWeek}
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByGradeId">
+        delete from schedule where class_id in (select id from clazz where grade_id = #{gradeId})
+    </delete>
+
+    <delete id="deleteByClassId">
+        delete from schedule where class_id = #{classId}
+    </delete>
+
+    <delete id="deleteByCourseId">
+        delete from schedule where course_id = #{courseId}
+    </delete>
+
+    <delete id="deleteByTeacherId">
+        delete from schedule where teacher_id = #{teacherId}
+    </delete>
+
+    <delete id="deleteByDepartmentId">
+        delete from schedule where teacher_id in (select id from employee where department_id = #{departmentId})
+    </delete>
+
+</mapper>

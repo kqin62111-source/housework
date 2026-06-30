@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>成绩报表</title>
+</head>
+<body class="hold-transition skin-black sidebar-mini">
+    <div th:replace="common/fragment :: link"></div>
+    <div class="wrapper">
+        <div th:replace="common/fragment :: navbar"></div>
+        <div th:replace="common/fragment :: menu"></div>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>成绩报表</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <form class="form-inline" id="searchForm" action="/report/scoreReport" method="post">
+                        <input type="hidden" name="currentPage" id="currentPage" value="1">
+                        <div class="form-group" style="margin: 10px">
+                            <input type="text" class="form-control" name="courseName" placeholder="课程名称" th:value="${query?.courseName}">
+                        </div>
+                        <div class="form-group" style="margin: 10px">
+                            <select class="form-control" name="examType">
+                                <option value="">全部类型</option>
+                                <option value="期中考试" th:selected="${query?.examType == '期中考试'}">期中考试</option>
+                                <option value="期末考试" th:selected="${query?.examType == '期末考试'}">期末考试</option>
+                                <option value="月考" th:selected="${query?.examType == '月考'}">月考</option>
+                                <option value="随堂测验" th:selected="${query?.examType == '随堂测验'}">随堂测验</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin: 10px">
+                            <span class="glyphicon glyphicon-search"></span> 查询
+                        </button>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-green">
+                            <div class="inner">
+                                <h3 th:text="${totalScores}">0</h3>
+                                <p>成绩记录数</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-bar-chart"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-blue">
+                            <div class="inner">
+                                <h3 th:text="${overallAvg}">0</h3>
+                                <p>总体平均分</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-trophy"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3 th:text="${highScoreRate + '%'}">0%</h3>
+                                <p>高分率(≥90)</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-red">
+                            <div class="inner">
+                                <h3 th:text="${lowScoreRate + '%'}">0%</h3>
+                                <p>低分率(&lt;60)</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-exclamation-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">各课程成绩统计详情</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>课程名称</th>
+                                <th>平均分</th>
+                                <th>最高分</th>
+                                <th>最低分</th>
+                                <th>参考人数</th>
+                                <th>及格人数</th>
+                                <th>不及格人数</th>
+                                <th>及格率</th>
+                                <th>优秀率</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item, stat : ${courseDetailList}">
+                                <td th:text="${stat.count}">1</td>
+                                <td th:text="${item.courseName}">语文</td>
+                                <td th:text="${item.avgScore}">0</td>
+                                <td th:text="${item.maxScore}">0</td>
+                                <td th:text="${item.minScore}">0</td>
+                                <td th:text="${item.count}">0</td>
+                                <td th:text="${item.passCount}">0</td>
+                                <td th:text="${item.failCount}">0</td>
+                                <td th:text="${item.passRate + '%'}">0%</td>
+                                <td th:text="${item.excellentRate + '%'}">0%</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div th:replace="common/fragment :: footer"></div>
+    </div>
+</body>
+</html>

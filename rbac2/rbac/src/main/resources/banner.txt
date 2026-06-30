@@ -1,0 +1,6 @@
+
+${AnsiColor.BLUE}╻ ╻┏━┓╻  ┏━╸┏━╸┏━┓╺┳┓┏━╸
+${AnsiColor.BLUE}┃╻┃┃ ┃┃  ┣╸ ┃  ┃ ┃ ┃┃┣╸
+${AnsiColor.BLUE}┗┻┛┗━┛┗━╸╹  ┗━╸┗━┛╺┻┛┗━╸
+
+Spring Boot 版本：${spring-boot.version}

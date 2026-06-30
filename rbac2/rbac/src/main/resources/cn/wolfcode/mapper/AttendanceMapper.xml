@@ -1,0 +1,54 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.AttendanceMapper">
+
+    <insert id="addAttendance">
+        insert into attendance(student_id, attendance_date, status, reason) 
+        values(#{studentId}, #{attendanceDate}, #{status}, #{reason})
+    </insert>
+
+    <update id="updateAttendance">
+        update attendance set student_id = #{studentId}, attendance_date = #{attendanceDate}, 
+        status = #{status}, reason = #{reason} where id = #{id}
+    </update>
+
+    <delete id="deleteAttendance">
+        delete from attendance where id = #{id}
+    </delete>
+
+    <select id="getAttendance" resultType="cn.wolfcode.domain.Attendance">
+        select a.id, a.student_id as studentId, stu.name as studentName, 
+        a.attendance_date as attendanceDate, a.status, a.reason
+        from attendance a left join student stu on a.student_id = stu.id where a.id = #{id}
+    </select>
+
+    <select id="selectAllAttendance" resultType="cn.wolfcode.domain.Attendance">
+        select a.id, a.student_id as studentId, stu.name as studentName, 
+        a.attendance_date as attendanceDate, a.status, a.reason
+        from attendance a left join student stu on a.student_id = stu.id
+    </select>
+
+    <select id="selectAttendanceByQuery" resultType="cn.wolfcode.domain.Attendance">
+        select a.id, a.student_id as studentId, stu.name as studentName, 
+        a.attendance_date as attendanceDate, a.status, a.reason
+        from attendance a left join student stu on a.student_id = stu.id
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and stu.name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and a.status = #{status}
+            </if>
+            <if test="attendanceDate != null and attendanceDate != ''">
+                and a.attendance_date = #{attendanceDate}
+            </if>
+        </where>
+    </select>
+
+<delete id="deleteByStudentId">
+        delete from attendance where student_id = #{studentId}
+    </delete>
+
+</mapper>
