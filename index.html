@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA GRID | 智能科技数据中枢</title>
+  <meta name="description" content="NOVA GRID 智能科技数据中枢网页展示，包含科技风首屏、核心指标、能力模块与运行面板。">
+  <style>
+    :root {
+      --bg: #050607;
+      --panel: rgba(16, 19, 22, 0.82);
+      --panel-solid: #101316;
+      --line: rgba(255, 255, 255, 0.12);
+      --line-strong: rgba(78, 232, 255, 0.42);
+      --text: #f6fbff;
+      --muted: #a8b3bd;
+      --soft: #d8e7ef;
+      --cyan: #4ee8ff;
+      --green: #89f5bd;
+      --amber: #ffd166;
+      --coral: #ff6b6b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(78, 232, 255, 0.12), transparent 26rem),
+        linear-gradient(180deg, #050607 0%, #080a0b 44%, #0d0f0f 100%);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .site-shell {
+      position: relative;
+      isolation: isolate;
+      min-height: 100vh;
+    }
+
+    .grid-overlay {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.84), transparent 78%);
+    }
+
+    #networkCanvas {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.46;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(5, 6, 7, 0.72);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      width: min(1180px, calc(100% - 40px));
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: max-content;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      background:
+        linear-gradient(135deg, rgba(78, 232, 255, 0.24), rgba(137, 245, 189, 0.08)),
+        rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 26px rgba(78, 232, 255, 0.22);
+    }
+
+    .brand-mark::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--cyan);
+      border-left-color: var(--amber);
+      transform: rotate(45deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: rgba(78, 232, 255, 0.2);
+      background: rgba(78, 232, 255, 0.06);
+    }
+
+    .nav-action {
+      min-width: max-content;
+      padding: 10px 16px;
+      border: 1px solid rgba(78, 232, 255, 0.5);
+      border-radius: 6px;
+      color: var(--text);
+      background: rgba(78, 232, 255, 0.08);
+      box-shadow: 0 0 28px rgba(78, 232, 255, 0.12);
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .nav-action:hover {
+      transform: translateY(-1px);
+      background: rgba(78, 232, 255, 0.16);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 84svh;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background:
+        linear-gradient(90deg, rgba(5, 6, 7, 0.98) 0%, rgba(5, 6, 7, 0.74) 43%, rgba(5, 6, 7, 0.28) 73%, rgba(5, 6, 7, 0.7) 100%),
+        linear-gradient(180deg, rgba(5, 6, 7, 0.08) 0%, rgba(5, 6, 7, 0.74) 100%),
+        url("assets/hero-tech.png") center right / cover no-repeat;
+      filter: saturate(1.08) contrast(1.06);
+      transform: scale(1.02);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 120px;
+      background: linear-gradient(180deg, transparent, var(--bg));
+      z-index: -2;
+    }
+
+    .hero-inner {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 92px 0 72px;
+      display: grid;
+      grid-template-columns: minmax(0, 690px) minmax(280px, 1fr);
+      gap: 48px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin-bottom: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 1px;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(137, 245, 189, 0.55);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin-bottom: 22px;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      margin-bottom: 34px;
+      color: var(--soft);
+      font-size: clamp(17px, 1.8vw, 21px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .button-primary {
+      color: #031012;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      font-weight: 800;
+      box-shadow: 0 18px 46px rgba(78, 232, 255, 0.18);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-symbol {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .hero-panel {
+      align-self: end;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(7, 9, 10, 0.62);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      min-height: 52px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .signal::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(137, 245, 189, 0.82);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .panel-body {
+      padding: 22px;
+    }
+
+    .scan {
+      position: relative;
+      height: 168px;
+      border: 1px solid rgba(78, 232, 255, 0.18);
+      background:
+        linear-gradient(90deg, rgba(78, 232, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(rgba(78, 232, 255, 0.06) 1px, transparent 1px),
+        rgba(0, 0, 0, 0.24);
+      background-size: 24px 24px;
+      overflow: hidden;
+    }
+
+    .scan::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent, rgba(78, 232, 255, 0.18), transparent);
+      animation: scanline 3.6s linear infinite;
+    }
+
+    .scan-node {
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 20px rgba(78, 232, 255, 0.82);
+    }
+
+    .scan-node:nth-child(1) {
+      left: 18%;
+      top: 35%;
+    }
+
+    .scan-node:nth-child(2) {
+      left: 56%;
+      top: 22%;
+      background: var(--green);
+      box-shadow: 0 0 20px rgba(137, 245, 189, 0.72);
+    }
+
+    .scan-node:nth-child(3) {
+      left: 76%;
+      top: 64%;
+      background: var(--amber);
+      box-shadow: 0 0 20px rgba(255, 209, 102, 0.68);
+    }
+
+    .telemetry {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .telemetry-item {
+      min-height: 78px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .telemetry-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .telemetry-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    main {
+      background: linear-gradient(180deg, rgba(5, 6, 7, 0), var(--bg) 8rem);
+    }
+
+    .section {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 78px 0;
+    }
+
+    .section-header {
+      max-width: 740px;
+      margin-bottom: 34px;
+    }
+
+    .section-kicker {
+      margin-bottom: 10px;
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: clamp(30px, 4.2vw, 54px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .metric {
+      min-height: 160px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+    }
+
+    .metric-value {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .capability-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .capability {
+      min-height: 270px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .capability:hover {
+      transform: translateY(-5px);
+      border-color: rgba(78, 232, 255, 0.34);
+      background: rgba(18, 23, 25, 0.9);
+    }
+
+    .capability-index {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(78, 232, 255, 0.36);
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(78, 232, 255, 0.06);
+    }
+
+    .capability h3 {
+      margin-bottom: 12px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .capability p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .ops-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .ops-console,
+    .ops-list {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(10, 12, 13, 0.9);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .console-screen {
+      min-height: 420px;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 22px;
+    }
+
+    .console-top {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .console-chip {
+      min-height: 86px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .console-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .console-chip strong {
+      color: var(--text);
+      font-size: 24px;
+    }
+
+    .data-stream {
+      position: relative;
+      min-height: 190px;
+      padding: 18px;
+      border: 1px solid rgba(78, 232, 255, 0.16);
+      background:
+        linear-gradient(135deg, rgba(78, 232, 255, 0.07), transparent 44%),
+        rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+    }
+
+    .data-stream::before,
+    .data-stream::after {
+      content: "";
+      position: absolute;
+      inset: 26px 24px;
+      border: 1px solid rgba(78, 232, 255, 0.18);
+      transform: skewX(-12deg);
+    }
+
+    .data-stream::after {
+      inset: 58px 62px;
+      border-color: rgba(137, 245, 189, 0.22);
+    }
+
+    .stream-line {
+      position: relative;
+      z-index: 1;
+      height: 10px;
+      margin: 16px 0;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      animation: stream 2.8s ease-in-out infinite;
+      transform-origin: left;
+    }
+
+    .stream-line:nth-child(2) {
+      width: 66%;
+      background: linear-gradient(90deg, var(--green), transparent);
+      animation-delay: 240ms;
+    }
+
+    .stream-line:nth-child(3) {
+      width: 42%;
+      background: linear-gradient(90deg, var(--amber), transparent);
+      animation-delay: 520ms;
+    }
+
+    .console-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .status-pill {
+      min-height: 32px;
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .ops-list {
+      padding: 10px 0;
+    }
+
+    .ops-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ops-item:last-child {
+      border-bottom: 0;
+    }
+
+    .ops-code {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .ops-copy strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .ops-copy span,
+    .ops-state {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .ops-state {
+      min-width: 70px;
+      text-align: right;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 31px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(78, 232, 255, 0.65), rgba(137, 245, 189, 0.22), rgba(255, 209, 102, 0.58));
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-top: 76px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(78, 232, 255, 0.8);
+      background: #071113;
+      box-shadow: 0 0 26px rgba(78, 232, 255, 0.32);
+    }
+
+    .timeline-item h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .timeline-item p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cta-band {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto 78px;
+      padding: 34px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 28px;
+      align-items: center;
+      border: 1px solid rgba(78, 232, 255, 0.22);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(78, 232, 255, 0.12), transparent 44%),
+        linear-gradient(90deg, rgba(255, 209, 102, 0.08), transparent 46%),
+        rgba(15, 18, 19, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .cta-band h2 {
+      margin-bottom: 8px;
+      font-size: clamp(26px, 3.4vw, 42px);
+    }
+
+    .cta-band p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      background: #050607;
+    }
+
+    .footer-inner {
+      width: min(1180px, calc(100% - 40px));
+      min-height: 86px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 14px;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 0.55;
+        transform: scale(0.92);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.12);
+      }
+    }
+
+    @keyframes scanline {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
+
+    @keyframes stream {
+      0%,
+      100% {
+        transform: scaleX(0.42);
+        opacity: 0.48;
+      }
+
+      50% {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .hero-inner,
+      .ops-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-panel {
+        max-width: 560px;
+      }
+
+      .metrics,
+      .capability-grid,
+      .timeline {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .timeline::before {
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        width: min(100% - 28px, 1180px);
+        min-height: 64px;
+      }
+
+      .nav-links,
+      .nav-action {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-inner {
+        width: min(100% - 28px, 1180px);
+        padding: 62px 0 42px;
+        gap: 28px;
+      }
+
+      h1 {
+        max-width: 10ch;
+      }
+
+      .hero-copy {
+        font-size: 16px;
+      }
+
+      .hero-actions {
+        align-items: stretch;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .telemetry,
+      .console-top,
+      .metrics,
+      .capability-grid,
+      .timeline,
+      .cta-band {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        width: min(100% - 28px, 1180px);
+        padding: 54px 0;
+      }
+
+      .capability {
+        min-height: 220px;
+      }
+
+      .ops-item {
+        grid-template-columns: auto 1fr;
+      }
+
+      .ops-state {
+        grid-column: 2;
+        text-align: left;
+      }
+
+      .cta-band {
+        width: min(100% - 28px, 1180px);
+        margin-bottom: 54px;
+        padding: 24px;
+      }
+
+      .footer-inner {
+        width: min(100% - 28px, 1180px);
+        padding: 24px 0;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <canvas id="networkCanvas" aria-hidden="true"></canvas>
+    <div class="grid-overlay" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <nav class="nav" aria-label="主导航">
+        <a class="brand" href="#top" aria-label="NOVA GRID 首页">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>NOVA GRID</span>
+        </a>
+        <div class="nav-links">
+          <a href="#metrics">核心指标</a>
+          <a href="#capabilities">能力矩阵</a>
+          <a href="#operations">运行中枢</a>
+          <a href="#roadmap">演进路线</a>
+        </div>
+        <a class="nav-action" href="#contact">启动评估</a>
+      </nav>
+    </header>
+
+    <section id="top" class="hero">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="eyebrow">Adaptive Intelligence Platform</div>
+          <h1>NOVA GRID</h1>
+          <p class="hero-copy">
+            面向未来业务的智能科技数据中枢，统一实时感知、AI 决策、自动化运维与安全治理，让复杂系统保持高速、稳定、可观测。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#operations">
+              查看运行中枢
+              <span class="button-symbol" aria-hidden="true">&gt;</span>
+            </a>
+            <a class="button button-secondary" href="#capabilities">
+              探索能力矩阵
+              <span class="button-symbol" aria-hidden="true">+</span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="实时系统状态">
+          <div class="panel-head">
+            <span>System Telemetry</span>
+            <span class="signal">ONLINE</span>
+          </div>
+          <div class="panel-body">
+            <div class="scan" aria-hidden="true">
+              <span class="scan-node"></span>
+              <span class="scan-node"></span>
+              <span class="scan-node"></span>
+            </div>
+            <div class="telemetry">
+              <div class="telemetry-item">
+                <strong>99.95%</strong>
+                <span>服务可用性</span>
+              </div>
+              <div class="telemetry-item">
+                <strong>120ms</strong>
+                <span>平均响应</span>
+              </div>
+              <div class="telemetry-item">
+                <strong>24/7</strong>
+                <span>持续监控</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <main>
+      <section id="metrics" class="section">
+        <div class="section-header">
+          <div class="section-kicker">CORE METRICS</div>
+          <h2>为高并发、强安全、低延迟场景设计。</h2>
+          <p>页面以科技产品官网为目标，突出系统能力、数据可信度和工程化稳定性，适合用作平台首页、产品展示页或项目演示页。</p>
+        </div>
+        <div class="metrics" aria-label="核心指标">
+          <article class="metric">
+            <span class="metric-value" data-counter="38">0</span>
+            <span class="metric-label">可接入业务域</span>
+          </article>
+          <article class="metric">
+            <span class="metric-value" data-counter="86">0</span>
+            <span class="metric-label">自动化流程覆盖率</span>
+          </article>
+          <article class="metric">
+            <span class="metric-value" data-counter="12">0</span>
+            <span class="metric-label">安全策略层级</span>
+          </article>
+          <article class="metric">
+            <span class="metric-value" data-counter="4">0</span>
+            <span class="metric-label">核心能力集群</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="capabilities" class="section">
+        <div class="section-header">
+          <div class="section-kicker">CAPABILITY MATRIX</div>
+          <h2>从感知到执行，构建闭环智能。</h2>
+          <p>能力矩阵覆盖实时数据采集、智能策略编排、可信安全控制和边缘协同，让平台能从展示型网页自然延展为完整产品门户。</p>
+        </div>
+        <div class="capability-grid">
+          <article class="capability">
+            <span class="capability-index">01</span>
+            <h3>实时感知</h3>
+            <p>统一采集系统、设备、业务与用户行为信号，形成可追踪、可回放、可分析的数据脉络。</p>
+          </article>
+          <article class="capability">
+            <span class="capability-index">02</span>
+            <h3>智能编排</h3>
+            <p>基于策略模型自动识别异常、触发流程、分配资源，减少人工介入带来的延迟和误差。</p>
+          </article>
+          <article class="capability">
+            <span class="capability-index">03</span>
+            <h3>安全治理</h3>
+            <p>通过分层权限、审计追踪和风险评分机制，为核心业务链路提供持续防护。</p>
+          </article>
+          <article class="capability">
+            <span class="capability-index">04</span>
+            <h3>边缘协同</h3>
+            <p>支持云端、边缘与本地节点协同运行，在复杂网络环境中保持服务连续性。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="operations" class="section">
+        <div class="section-header">
+          <div class="section-kicker">OPERATIONS HUB</div>
+          <h2>关键状态集中呈现，异常链路快速定位。</h2>
+          <p>运行中枢采用深色界面、数据流动效和状态分层，强化科技感的同时保留清晰的信息层级。</p>
+        </div>
+        <div class="ops-layout">
+          <article class="ops-console" aria-label="运行监控面板">
+            <div class="panel-head">
+              <span>Command Console</span>
+              <span>SYNC 06:30:18</span>
+            </div>
+            <div class="console-screen">
+              <div class="console-top">
+                <div class="console-chip">
+                  <span>Throughput</span>
+                  <strong>3.8x</strong>
+                </div>
+                <div class="console-chip">
+                  <span>Risk Score</span>
+                  <strong>Low</strong>
+                </div>
+                <div class="console-chip">
+                  <span>Nodes</span>
+                  <strong>128</strong>
+                </div>
+              </div>
+              <div class="data-stream" aria-hidden="true">
+                <div class="stream-line"></div>
+                <div class="stream-line"></div>
+                <div class="stream-line"></div>
+              </div>
+              <div class="console-footer">
+                <span class="status-pill">API Gateway</span>
+                <span class="status-pill">Model Router</span>
+                <span class="status-pill">Audit Trail</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="ops-list" aria-label="运行任务列表">
+            <div class="ops-item">
+              <span class="ops-code">A1</span>
+              <span class="ops-copy">
+                <strong>实时链路巡检</strong>
+                <span>跨区域节点状态同步完成</span>
+              </span>
+              <span class="ops-state">稳定</span>
+            </div>
+            <div class="ops-item">
+              <span class="ops-code">B4</span>
+              <span class="ops-copy">
+                <strong>策略模型校准</strong>
+                <span>风险权重已根据新数据更新</span>
+              </span>
+              <span class="ops-state">运行中</span>
+            </div>
+            <div class="ops-item">
+              <span class="ops-code">C7</span>
+              <span class="ops-copy">
+                <strong>资源弹性调度</strong>
+                <span>高峰流量已进入预测窗口</span>
+              </span>
+              <span class="ops-state">待观察</span>
+            </div>
+            <div class="ops-item">
+              <span class="ops-code">D2</span>
+              <span class="ops-copy">
+                <strong>安全审计归档</strong>
+                <span>关键操作日志完成校验</span>
+              </span>
+              <span class="ops-state">完成</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="roadmap" class="section">
+        <div class="section-header">
+          <div class="section-kicker">ROADMAP</div>
+          <h2>可从展示页扩展为完整业务系统。</h2>
+          <p>当前版本适合作为项目首页基础版，后续可接入真实 API、后台管理、用户权限、数据看板和部署流水线。</p>
+        </div>
+        <div class="timeline">
+          <article class="timeline-item">
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <h3>品牌首页</h3>
+            <p>形成科技风视觉基底和可复用内容结构。</p>
+          </article>
+          <article class="timeline-item">
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <h3>数据接入</h3>
+            <p>将静态指标替换为后端接口或配置文件驱动。</p>
+          </article>
+          <article class="timeline-item">
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <h3>权限体系</h3>
+            <p>扩展登录、角色、审计和安全策略配置。</p>
+          </article>
+          <article class="timeline-item">
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <h3>部署交付</h3>
+            <p>接入自动化构建、静态托管和监控告警。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="cta-band">
+        <div>
+          <h2>让页面成为系统入口，而不只是展示橱窗。</h2>
+          <p>下一阶段可以基于该页面继续拆分组件、接入真实数据，并形成可部署的前端项目结构。</p>
+        </div>
+        <a class="button button-primary" href="#top">
+          返回顶部
+          <span class="button-symbol" aria-hidden="true">^</span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span>NOVA GRID Technology Interface</span>
+        <span>Designed for scalable digital operations</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("networkCanvas");
+    const ctx = canvas.getContext("2d");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let width = 0;
+    let height = 0;
+    let points = [];
+    let animationFrame = 0;
+
+    function resizeCanvas() {
+      const ratio = window.devicePixelRatio || 1;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      const count = Math.min(72, Math.max(32, Math.floor(width / 18)));
+      points = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.42,
+        vy: (Math.random() - 0.5) * 0.42,
+        r: Math.random() * 1.6 + 0.8
+      }));
+    }
+
+    function drawNetwork() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i < points.length; i += 1) {
+        const point = points[i];
+        if (!prefersReducedMotion.matches) {
+          point.x += point.vx;
+          point.y += point.vy;
+        }
+
+        if (point.x < 0 || point.x > width) {
+          point.vx *= -1;
+        }
+
+        if (point.y < 0 || point.y > height) {
+          point.vy *= -1;
+        }
+
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, point.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(78, 232, 255, 0.72)";
+        ctx.fill();
+
+        for (let j = i + 1; j < points.length; j += 1) {
+          const next = points[j];
+          const distance = Math.hypot(point.x - next.x, point.y - next.y);
+
+          if (distance < 128) {
+            ctx.beginPath();
+            ctx.moveTo(point.x, point.y);
+            ctx.lineTo(next.x, next.y);
+            ctx.strokeStyle = `rgba(78, 232, 255, ${0.18 - distance / 900})`;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrame = window.requestAnimationFrame(drawNetwork);
+    }
+
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        const element = entry.target;
+        const target = Number(element.dataset.counter);
+        const suffix = target === 86 ? "%" : target === 4 ? "" : "+";
+        const duration = 980;
+        const startedAt = performance.now();
+
+        function update(now) {
+          const progress = Math.min((now - startedAt) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          element.textContent = `${Math.round(target * eased)}${suffix}`;
+
+          if (progress < 1) {
+            window.requestAnimationFrame(update);
+          }
+        }
+
+        window.requestAnimationFrame(update);
+        observer.unobserve(element);
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll("[data-counter]").forEach((element) => {
+      counterObserver.observe(element);
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    if (!prefersReducedMotion.matches) {
+      drawNetwork();
+    }
+
+    prefersReducedMotion.addEventListener("change", () => {
+      window.cancelAnimationFrame(animationFrame);
+      resizeCanvas();
+      if (!prefersReducedMotion.matches) {
+        drawNetwork();
+      } else {
+        ctx.clearRect(0, 0, width, height);
+      }
+    });
+  </script>
+</body>
+</html>
